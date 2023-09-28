@@ -13,7 +13,7 @@ const typeNames = ['тонкое','традиционное'];
  }
 
     return (
-        <>
+        <div className="pizza-block__wrapper">
 <div className="pizza-block">
 <img
   className="pizza-block__image"
@@ -53,6 +53,6 @@ const typeNames = ['тонкое','традиционное'];
   </button>
 </div>
 </div> 
-</>
+</div>
 )}
 export default PizzaBlock

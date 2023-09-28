@@ -1,42 +1,54 @@
-import React from "react"
+import React from "react";
 
-import Categories from '../components/Categories/Categories';
-import Sort from '../components/Sort/Sort';
+import Categories from "../components/Categories/Categories";
+import Sort from "../components/Sort/Sort";
 import PizzaBlock from "../components/PizzaBlock/PizzaBlock";
-import {Skeleton} from '../components/PizzaBlock/Skeleton';
+import Skeleton from "../components/PizzaBlock/Skeleton";
 
+const Home = () => {
+  const [items, setItems] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [categoryId, setCategoryId] = React.useState(0);
+  const [sortType, setSortType] = React.useState({
+    name: "популярности",
+    sortProperty: "rating",
+  });
 
+  React.useEffect(() => {
+    setIsLoading(true);
 
-export function Home() {
-const [items, setItems] = React.useState([])
-const [isLoading, setIsloading]= React.useState(true);
+    const category = categoryId > 0 ? `category=${categoryId}` : "";
+    const sortBy = sortType.sortProperty.replace("-", "");
+    const order = sortType.sortProperty.includes("-") ? "asc" : "desc";
 
-React.useEffect(() => {
-fetch('https://650dbfb7a8b42265ec2ca851.mockapi.io/items')
-.then((res)=>res.json())
-.then((arr)=>{
-  setItems(arr)
-  setIsloading(false);
-  })
-},[])
-console.log(items)
+    fetch(
+      `https://63334d6b573c03ab0b5bcff0.mockapi.io/items?${category}&sortBy=${sortBy}&order=${order}`
+    )
+      .then((res) => res.json())
+      .then((json) => {
+        setItems(json);
+        setIsLoading(false);
+      });
+    window.scrollTo(0, 0);
+  }, [categoryId, sortType]);
+
   return (
-
-      <div class="container">
-        <div class="content__top">
-        <Categories/>
-        <Sort/>
-        </div>
-        <h2 class="content__title">Все пиццы</h2>
-        <div class="content__items">
-          {
-          isLoading? [...new Array(6)].map((_,index)=><Skeleton key={index}/>):items.map((obj)=><PizzaBlock key={obj.id}{...obj}/>)
-          }
-        </div>
+    <div className="container">
+      <div className="content__top">
+        <Categories
+          value={categoryId}
+          onClickCategory={(i) => setCategoryId(i)}
+        />
+        <Sort value={sortType} onClickSortType={(i) => setSortType(i)} />
       </div>
- 
+      <h2 className="content__title">Все пиццы</h2>
+      <div className="content__items">
+        {isLoading
+          ? [...new Array(6)].map((_, index) => <Skeleton key={index} />)
+          : items.map((obj) => <PizzaBlock key={obj.id} {...obj} />)}
+      </div>
+    </div>
   );
-}
-
+};
 
 export default Home;
