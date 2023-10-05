@@ -15,6 +15,7 @@ import PizzaBlock from "../components/PizzaBlock/PizzaBlock";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import { SearchContext } from "../App";
 import { setCategoryId } from "../redux/filterSlice";
+import axios from "axios";
 
 
 const Home = () => {
@@ -39,15 +40,12 @@ const Home = () => {
     const sortBy = sort.sortProperty.replace("-", "");
     const order = sort.sortProperty.includes("-") ? "asc" : "desc";
 
-    fetch(
-      `https://63334d6b573c03ab0b5bcff0.mockapi.io/items?&page=${currentPage}&limit=4${category}&sortBy=${sortBy}&order=${order}${search}`
-    )
-      .then((res) => res.json())
-      .then((json) => {
-        setItems(json);
-        setIsLoading(false);
-      });
-    window.scrollTo(0, 0);
+      axios.get(`https://63334d6b573c03ab0b5bcff0.mockapi.io/items?&page=${currentPage}&limit=4${category}&sortBy=${sortBy}&order=${order}${search}`)
+      .then((res) => {
+      setItems(res.data);
+      setIsLoading(false);
+    });
+      window.scrollTo(0, 0);
   }, [categoryId, sort.sortProperty, searchValue, currentPage]);
 
   const skeletons = [...new Array(6)].map((_, index) => (
