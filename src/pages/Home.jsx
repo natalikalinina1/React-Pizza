@@ -1,4 +1,3 @@
-
 /*
       `https://63334d6b573c03ab0b5bcff0.mockapi.io/items?&page=${currentPage}&limit=4${category}&sortBy=${sortBy}&order=${order}${search}`
 
@@ -7,18 +6,27 @@
 
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-
-import Pagination from "../components/Pagination/Pagination"
+import { useNavigate } from "react-router-dom";
+import Pagination from "../components/Pagination/Pagination";
 import Categories from "../components/Categories/Categories";
 import Sort from "../components/Sort/Sort";
 import PizzaBlock from "../components/PizzaBlock/PizzaBlock";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import { SearchContext } from "../App";
 import axios from "axios";
-import { setCategoryId, setCurrentPage } from "../redux/filterSlice";
+import {
+  setCategoryId,
+  setCurrentPage,
+  setFilters,
+} from "../redux/filterSlice";
+import qs from "qs";
+import { List } from "../components/Sort/Sort";
 
 const Home = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const isSearch = React.useRef(false);
+  const isMounted = React.useRef(false);
   const { categoryId, sort, currentPage } = useSelector(
     (state) => state.filter
   );
@@ -36,9 +44,8 @@ const Home = () => {
     dispatch(setCurrentPage(number));
   };
 
-  React.useEffect(() => {
+  const FetchPizzas = () => {
     setIsLoading(true);
-
     const category = categoryId > 0 ? `&category=${categoryId}` : "";
     const search = searchValue ? `&search=${searchValue}` : "";
     const sortBy = sort.sortProperty.replace("-", "");
@@ -52,8 +59,44 @@ const Home = () => {
         setItems(res.data);
         setIsLoading(false);
       });
+  };
+  // если был 1 рендер  то проверяем параметры URl и сохраняем в reduxe
+  React.useEffect(() => {
+    if (window.location.search) {
+      const params = qs.parse(window.location.search.substring(1));
+      const sort = List.find((obj) => obj.sortProperty === params.sortProperty);
 
+      dispatch(
+        setFilters({
+          ...params,
+          sort,
+        })
+      );
+
+      isSearch.current = true;
+    }
+  }, []);
+
+  React.useEffect(() => {
     window.scrollTo(0, 0);
+
+    if (!isSearch.current) {
+      FetchPizzas();
+    }
+    isSearch.current = false;
+  }, [categoryId, sort.sortProperty, searchValue, currentPage]);
+
+  //Если изменили параметры и был первый рендер
+  React.useEffect(() => {
+    if (isMounted.current) {
+      const queryString = qs.stringify({
+        sortProperty: sort.sortProperty,
+        categoryId,
+        currentPage,
+      });
+      navigate(`?${queryString}`);
+    }
+    isMounted.current = true;
   }, [categoryId, sort.sortProperty, searchValue, currentPage]);
 
   const skeletons = [...new Array(6)].map((_, index) => (
