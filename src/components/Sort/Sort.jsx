@@ -21,7 +21,7 @@ export default function Sort() {
     dispatch(setSort(obj));
     setOpen(false);
   };
-
+// чтобы закрывалась сортировка при клике на body
   React.useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.composedPath().includes(sortRef.current)) {
