@@ -12,9 +12,10 @@ import Categories from "../components/Categories/Categories";
 import Sort from "../components/Sort/Sort";
 import PizzaBlock from "../components/PizzaBlock/PizzaBlock";
 import Skeleton from "../components/PizzaBlock/Skeleton";
-import {fetchPizzas } from "../redux/pizzaSlice";
+import {fetchPizzas, selectPizzaData } from "../redux/pizzaSlice";
 import { SearchContext } from "../App";
 import {
+  selectFilter,
   setCategoryId,
   setCurrentPage,
   setFilters,
@@ -28,10 +29,8 @@ const Home = () => {
   const isSearch = React.useRef(false);
   const isMounted = React.useRef(false);
 
-  const{ items, status} = useSelector((state) => state.pizza);
-  const { categoryId, sort, currentPage } = useSelector(
-    (state) => state.filter
-  );
+  const{ items, status} = useSelector(selectPizzaData);
+  const { categoryId, sort, currentPage } = useSelector(selectFilter);
 
   const { searchValue } = React.useContext(SearchContext);
 
