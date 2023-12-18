@@ -12,9 +12,8 @@ import Categories from "../components/Categories/Categories";
 import Sort from "../components/Sort/Sort";
 import PizzaBlock from "../components/PizzaBlock/PizzaBlock";
 import Skeleton from "../components/PizzaBlock/Skeleton";
-import { setItems } from "../redux/pizzaSlice";
+import {fetchPizzas } from "../redux/pizzaSlice";
 import { SearchContext } from "../App";
-import axios from "axios";
 import {
   setCategoryId,
   setCurrentPage,
@@ -29,13 +28,13 @@ const Home = () => {
   const isSearch = React.useRef(false);
   const isMounted = React.useRef(false);
 
-  const items = useSelector((state) => state.pizza.items);
+  const{ items, status} = useSelector((state) => state.pizza);
   const { categoryId, sort, currentPage } = useSelector(
     (state) => state.filter
   );
 
   const { searchValue } = React.useContext(SearchContext);
-  const [isLoading, setIsLoading] = React.useState(true);
+
 
   const onChangeCategory = (id) => {
     console.log("onChangeCategory", id);
@@ -46,25 +45,17 @@ const Home = () => {
     dispatch(setCurrentPage(number));
   };
 
-  const FetchPizzas = async () => {
-    setIsLoading(true);
+   const getPizzas = async () => {
+  
     const category = categoryId > 0 ? `&category=${categoryId}` : "";
     const search = searchValue ? `&search=${searchValue}` : "";
     const sortBy = sort.sortProperty.replace("-", "");
     const order = sort.sortProperty.includes("-") ? "asc" : "desc";
-    try {
-      const { data } = await axios.get(
-        `https://63334d6b573c03ab0b5bcff0.mockapi.io/items?&page=${currentPage}&limit=4${category}&sortBy=${sortBy}&order=${order}${search}`
+
+      dispatch(
+    fetchPizzas({category,search,sortBy,order,currentPage,})
       );
-      dispatch(setItems(data));
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      console.log("ERROR", error);
-      alert("Ошибка при получении пицц");
-    } finally {
-      setIsLoading(false);
-    }
+ 
     window.scrollTo(0, 0);
   };
   // если был 1 рендер  то проверяем параметры URl и сохраняем в reduxe
@@ -88,7 +79,7 @@ const Home = () => {
     window.scrollTo(0, 0);
 
     if (!isSearch.current) {
-      FetchPizzas();
+      getPizzas();
     }
     isSearch.current = false;
   }, [categoryId, sort.sortProperty, searchValue, currentPage]);
@@ -115,10 +106,23 @@ const Home = () => {
     <div className="container">
       <div className="content__top">
         <Categories value={categoryId} onClickCategory={onChangeCategory} />
-        <Sort />
+        <Sort /> 
       </div>
       <h2 className="content__title">Все пиццы</h2>
-      <div className="content__items">{isLoading ? skeletons : pizzas}</div>
+      {status === "error" ? (
+        <div className="content__error-info">
+          <h2>Произошла ошибка 😕</h2>
+          <p>
+            К сожалению, не удалось получить пиццы. Попробуйте повторить попытку
+            позже.
+          </p>
+        </div>
+      ) : (
+        <div className="content__items">
+          {status === "loading" ? skeletons : pizzas}
+        </div>
+      )}
+
       <Pagination currentPage={currentPage} onChangePage={onChangePage} />
     </div>
   );
