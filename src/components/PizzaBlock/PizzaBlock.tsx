@@ -4,15 +4,23 @@ import { addItem, selectCartItemById } from "../../redux/cartSlice";
 import { Link } from "react-router-dom";
 
 const typeNames = ["Тонкое", "Традиционное"];
+type PizzaBlockProps = {
+  id: string,
+  title: string,
+  price: number,
+  imageUrl: string,
+  sizes: number[],
+  types: number[],
+}
 
-export default function PizzaBlock({
+const PizzaBlock: React.FC<PizzaBlockProps> = ({
   id,
   title,
   price,
   imageUrl,
   sizes,
   types,
-}) {
+}) => {
   const dispatch = useDispatch();
   const cartItem = useSelector(selectCartItemById(id));
   const [activeType, setActiveType] = React.useState(0);
@@ -89,3 +97,5 @@ export default function PizzaBlock({
     </div>
   );
 }
+
+export default PizzaBlock;

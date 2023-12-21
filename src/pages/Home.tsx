@@ -22,7 +22,7 @@ import {
 import qs from "qs";
 import { List } from "../components/Sort/Sort";
 
-const Home = () => {
+const Home:React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const isSearch = React.useRef(false);
@@ -31,13 +31,13 @@ const Home = () => {
   const{ items, status} = useSelector(selectPizzaData);
   const { categoryId, sort, currentPage, searchValue } = useSelector(selectFilter);
 
-  const onChangeCategory = (id) => {
-    console.log("onChangeCategory", id);
-    dispatch(setCategoryId(id));
+  const onChangeCategory = (idx:number) => {
+    console.log("onChangeCategory", idx);
+    dispatch(setCategoryId(idx));
   };
 
-  const onChangePage = (number) => {
-    dispatch(setCurrentPage(number));
+  const onChangePage = (page:number) => {
+    dispatch(setCurrentPage(page));
   };
 
    const getPizzas = async () => {
@@ -48,6 +48,7 @@ const Home = () => {
     const order = sort.sortProperty.includes("-") ? "asc" : "desc";
 
       dispatch(
+        //@ts-ignore
     fetchPizzas({category,search,sortBy,order,currentPage,})
       );
  
@@ -95,7 +96,7 @@ const Home = () => {
   const skeletons = [...new Array(6)].map((_, index) => (
     <Skeleton key={index} />
   ));
-  const pizzas = items.map((obj) => <PizzaBlock key={obj.id} {...obj} />);
+  const pizzas = items.map((obj:any) => <PizzaBlock key={obj.id} {...obj} />);
 
   return (
     <div className="container">
