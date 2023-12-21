@@ -2,7 +2,17 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { selectSort, setSort } from "../../redux/filterSlice";
 
-export const List = [
+type sortList = {
+  name: string;
+  sortProperty: string;
+  
+}
+
+type PopupClick = MouseEvent & {
+  path: Node[];
+}
+
+export const List:sortList[] = [
   { name: "популярности (DESC)", sortProperty: "rating" },
   { name: "популярности (ASC)", sortProperty: "-rating" },
   { name: "цене (DESC)", sortProperty: "price" },
@@ -14,17 +24,18 @@ export const List = [
 export default function Sort() {
   const dispatch = useDispatch();
   const sort = useSelector(selectSort);
-  const sortRef = React.useRef();
+  const sortRef = React.useRef<HTMLDivElement>(null);
   const [open, setOpen] = React.useState(false);
 
-  const onClickList = (obj) => {
+  const onClickList = (obj:sortList) => {
     dispatch(setSort(obj));
     setOpen(false);
   };
 // чтобы закрывалась сортировка при клике на body
   React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.composedPath().includes(sortRef.current)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      const _event = event as PopupClick;
+      if (sortRef.current && !_event.path.includes(sortRef.current)) {
         setOpen(false);
       }
     };
@@ -57,9 +68,9 @@ export default function Sort() {
       {open && (
         <div className="sort__popup">
           <ul>
-            {List.map((obj) => (
+            {List.map((obj,i) => (
               <li
-                key={obj}
+                key={i}
                 onClick={() => onClickList(obj)}
                 className={
                   sort.sortProperty === obj.sortProperty ? "active" : ""
